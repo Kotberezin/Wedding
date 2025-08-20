@@ -146,13 +146,48 @@
     updateProgress();
   }
 
-  function updateProgress(){
-    var need = Math.min(TOTAL_TO_SOLVE, QUESTIONS.length);
-    progressEl.textContent = "Верно: " + correctCount + " из " + need;
-    if (correctCount >= need){
-      setTimeout(function(){ window.location.href = REDIRECT_URL; }, 900);
-    }
+function updateProgress(){
+  var need = Math.min(TOTAL_TO_SOLVE, QUESTIONS.length);
+  progressEl.textContent = "Верно: " + correctCount + " из " + need;
+
+  if (correctCount >= need){
+    // Показать поздравление и призы вместо редиректа
+    showCongratulations();
   }
+}
+
+function showCongratulations(){
+  // Очищаем блок с вопросами
+  qsRoot.innerHTML = "";
+
+  // Создаём карточку с поздравлением
+  var card = document.createElement("div");
+  card.className = "q";
+
+  var title = document.createElement("h2");
+  title.textContent = "Поздравляем!";
+  card.appendChild(title);
+
+  var msg = document.createElement("p");
+  msg.innerHTML = "Вы успешно прошли тест на идеальную совместимость! Ваши ответы доказывают, что вы готовы к новому совместному приключению.<br><br>" +
+                  "Ваш главный приз — это <b>романтическое путешествие для двоих в солнечный Сочи!</b><br><br>" +
+                  "Желаем вам незабываемых эмоций, яркого солнца и моря счастья! Ваше путешествие начинается сейчас!";
+  card.appendChild(msg);
+
+  // Кнопки для скачивания PDF
+  var btns = document.createElement("div");
+  btns.style.marginTop = "20px";
+  btns.innerHTML = `
+    <a class="cta" href="prize/tickets.pdf" download>Скачать билеты (PDF)</a>
+    <a class="cta" href="prize/hotel.pdf" download>Скачать бронь (PDF)</a>
+  `;
+  card.appendChild(btns);
+
+  qsRoot.appendChild(card);
+
+  // Скрыть счётчик
+  progressEl.textContent = "";
+}
 
   function popCelebrate(){
     celebrate.classList.remove("show");
