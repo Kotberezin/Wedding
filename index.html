@@ -66,64 +66,101 @@
     Включите JavaScript в браузере — без него квест не работает.
   </div></noscript>
 
-  <script>
-    // ===== Настройки =====
-    const REDIRECT_URL = "prize.html";
-    const TOTAL_TO_SOLVE = 5;
+<script>
+  // ===== Настройки =====
+  const REDIRECT_URL = "prize.html";
+  const TOTAL_TO_SOLVE = 5;
 
-    // ВАШИ ВОПРОСЫ: редактируйте только текст ниже.
-    const QUESTIONS = [
-      { prompt: "Где вы впервые познакомились?", answers: ["в университете","универ","университет"] },
-      { prompt: "Какое блюдо вы впервые приготовили вместе?", answers: ["паста","пасту","карбонара","паста карбонара"] },
-      { prompt: "Город вашего первого совместного путешествия?", answers: ["питер","санктпетербург","санкт-петербург","санкт петербург","spb"] },
-      { prompt: "Как зовут вашего первого общего питомца?", answers: ["мята","мятка","myata"] },
-      { prompt: "Какой фильм вы называете своим комфорт-фильмом?", answers: ["1+1","одинплюсодин","the intouchables","интучаблз","интушеблс"] }
-    ];
-    // =====================
+  const QUESTIONS = [
+    { prompt: "Где вы впервые познакомились?", answers: ["в университете","универ","университет"] },
+    { prompt: "Какое блюдо вы впервые приготовили вместе?", answers: ["паста","пасту","карбонара","паста карбонара"] },
+    { prompt: "Город вашего первого совместного путешествия?", answers: ["питер","санктпетербург","санкт-петербург","санкт петербург","spb"] },
+    { prompt: "Как зовут вашего первого общего питомца?", answers: ["мята","мятка","myata"] },
+    { prompt: "Какой фильм вы называете своим комфорт-фильмом?", answers: ["1+1","одинплюсодин","the intouchables","интучаблз","интушеблс"] }
+  ];
+  // =====================
 
-    function norm(s){return (s||"").toString().toLowerCase().trim().replace(/ё/g,"е").replace(/[.,!?:;'\"`^~@#$%&*_=+<>/\\|()\\[\\]\\-\\s–—]/g,"")}
-    function isCorrect(val, answers){const v = norm(val); return answers.some(a => norm(a) === v)}
-    const qsRoot = document.getElementById("questions");
-    const progressEl = document.getElementById("progress");
-    const celebrate = document.getElementById("celebrate");
-    let correctCount = 0; let solved = new Array(QUESTIONS.length).fill(false);
+  function norm(s){
+    return (s||"").toString().toLowerCase().trim()
+      .replace(/ё/g,"е")
+      .replace(/[.,!?:;'"`^~@#$%&*_=+<>/\\|()\\[\\]\\-\\s–—]/g,"");
+  }
+  function isCorrect(val, answers){
+    const v = norm(val);
+    return answers.some(function(a){ return norm(a) === v; });
+  }
 
-    function render(){
-      qsRoot.innerHTML = "";
-      QUESTIONS.forEach((q, idx) => {
-        const block = document.createElement("div"); block.className = "q";
-        const title = document.createElement("h3"); title.textContent = ${idx+1}. ${q.prompt}; block.appendChild(title);
-        const label = document.createElement("div"); label.className = "label"; label.textContent = "Ваш ответ:"; block.appendChild(label);
-        const input = document.createElement("input"); input.className="answer"; input.type="text"; input.autocomplete="off"; input.spellcheck=false; input.setAttribute("data-index", idx);
-        input.addEventListener("input", onType); block.appendChild(input);
-        const hint=document.createElement("div"); hint.className="hint"; hint.textContent="Подтверждение появится автоматически."; block.appendChild(hint);
-        qsRoot.appendChild(block);
-      });
-      updateProgress();
-    }
+  var qsRoot = document.getElementById("questions");
+  var progressEl = document.getElementById("progress");
+  var celebrate = document.getElementById("celebrate");
+  var correctCount = 0;
+  var solved = new Array(QUESTIONS.length).fill(false);
 
-    function onType(e){
-      const input = e.target; const idx = Number(input.getAttribute("data-index")); const q = QUESTIONS[idx];
-      if (isCorrect(input.value, q.answers)){
-        if (!solved[idx]){ solved[idx]=true; correctCount++; }
-        input.classList.remove("incorrect"); input.classList.add("correct"); input.disabled = true; popCelebrate();
-      } else {
-        if (!solved[idx]){
-          input.classList.remove("correct");
-          if (input.value.trim().length>0){ input.classList.add("incorrect"); } else { input.classList.remove("incorrect"); }
-        }
+  function render(){
+    qsRoot.innerHTML = "";
+    QUESTIONS.forEach(function(q, idx){
+      var block = document.createElement("div"); block.className = "q";
+
+      var title = document.createElement("h3");
+      title.textContent = (idx + 1) + ". " + q.prompt;
+      block.appendChild(title);
+
+      var label = document.createElement("div"); label.className = "label"; label.textContent = "Ваш ответ:";
+      block.appendChild(label);
+
+      var input = document.createElement("input");
+      input.className = "answer";
+      input.type = "text";
+      input.autocomplete = "off";
+      input.spellcheck = false;
+      input.setAttribute("data-index", String(idx));
+      input.addEventListener("input", onType);
+      block.appendChild(input);
+
+      var hint = document.createElement("div"); hint.className = "hint"; hint.textContent = "Подтверждение появится автоматически.";
+      block.appendChild(hint);
+
+      qsRoot.appendChild(block);
+    });
+    updateProgress();
+  }
+
+  function onType(e){
+    var input = e.target;
+    var idx = Number(input.getAttribute("data-index"));
+    var q = QUESTIONS[idx];
+
+    if (isCorrect(input.value, q.answers)){
+      if (!solved[idx]){ solved[idx] = true; correctCount++; }
+      input.classList.remove("incorrect");
+      input.classList.add("correct");
+      input.disabled = true;
+      popCelebrate();
+    } else {
+      if (!solved[idx]){
+        input.classList.remove("correct");
+        if (input.value.trim().length > 0){ input.classList.add("incorrect"); }
+        else { input.classList.remove("incorrect"); }
       }
-      updateProgress();
     }
+    updateProgress();
+  }
 
-    function updateProgress(){
-      const need = Math.min(TOTAL_TO_SOLVE, QUESTIONS.length);
-      progressEl.textContent = Верно: ${correctCount} из ${need};
-      if (correctCount >= need){ setTimeout(()=>{ window.location.href = REDIRECT_URL; }, 900); }
+  function updateProgress(){
+    var need = Math.min(TOTAL_TO_SOLVE, QUESTIONS.length);
+    progressEl.textContent = "Верно: " + correctCount + " из " + need;
+    if (correctCount >= need){
+      setTimeout(function(){ window.location.href = REDIRECT_URL; }, 900);
     }
-    function popCelebrate(){ celebrate.classList.remove("show"); void celebrate.offsetWidth; celebrate.classList.add("show"); }
+  }
 
-    render();
-  </script>
+  function popCelebrate(){
+    celebrate.classList.remove("show");
+    void celebrate.offsetWidth;
+    celebrate.classList.add("show");
+  }
+
+  render();
+</script>
 </body>
 </html>
