@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ваш подарок ✈️</title>
+  <link rel="stylesheet" href="style.css" />
+  <meta name="description" content="Поздравляем! Ваш подарок готов." />
+  <style>
+    .cta{
+      display: inline-block;
+      margin: 8px 8px 0 0;
+      padding: 12px 16px;
+      border: 2px solid #2e6df6;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 600;
+      color: #2e6df6;
+      transition: .2s;
+      background: #f2f6ff;
+    }
+    .cta:hover{ transform: translateY(-1px); box-shadow: 0 6px 18px rgba(20,40,90,0.08); }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <section class="card">
+      <h1>Ура! Вы — идеальная команда 🎉</h1>
+      <p style="margin-top:10px">
+        Поздравляем со свадьбой и желаем невероятных путешествий! Ниже — ваш подарок:
+      </p>
+
+      <ul style="margin-top:14px">
+        <li><strong>Авиабилеты</strong> — электронные билеты в формате PDF.</li>
+        <li><strong>Бронь отеля</strong> — подтверждение бронирования в формате PDF.</li>
+      </ul>
+
+      <div style="margin-top:14px">
+        <a class="cta" href="prize/tickets.pdf" download>Скачать билеты (PDF)</a>
+        <a class="cta" href="prize/hotel.pdf" download>Скачать бронь (PDF)</a>
+      </div>
+
+      <p class="muted" style="margin-top:16px">
+        Если файлы не открываются со смартфона, попробуйте «Открыть в новой вкладке» или скачать на устройство.
+      </p>
+    </section>
+  </main>
+</body>
+</html>
