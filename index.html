@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Паша & Варя — Квест-подарок</title>
+  <title>Павел & Варвара — Квест-подарок</title>
   <meta name="description" content="Небольшой свадебный квест-подарок" />
   <style>
     :root{
@@ -48,19 +48,17 @@
     input.answer:focus{border-color:var(--focus);box-shadow:0 0 0 6px rgba(143,179,255,.18)}
     input.answer.correct{border-color:var(--ok);background:#eafaf3}
     input.answer.incorrect{border-color:var(--bad);background:#fff0f0}
-
     .hint{font-size:13px;color:var(--muted);margin-top:6px}
 
-    /* прогресс: снизу и «липнет» на мобиле */
-    .progress{
-      margin-top:16px;font-weight:700;color:var(--muted);
-    }
+    /* прогресс — «липкий» на мобиле */
+    .progress{margin-top:16px;font-weight:700;color:var(--muted)}
     @media (max-width:640px){
       .progress{
         position:sticky;bottom:0;left:0;right:0;
         padding:14px 16px;margin:16px -16px -16px;
         background:rgba(255,255,255,.85);backdrop-filter:saturate(140%) blur(6px);
-        border-top:1px solid var(--border);border-bottom-left-radius:18px;border-bottom-right-radius:18px;
+        border-top:1px solid var(--border);
+        border-bottom-left-radius:18px;border-bottom-right-radius:18px;
       }
     }
 
@@ -74,19 +72,43 @@
     .cta:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(20,40,90,.08)}
     @media (max-width:640px){ .cta{display:block;width:100%} }
 
-    /* праздничная рамка */
+    /* праздничная рамка финального блока */
     .prize{
-      position:relative;padding:22px;border-radius:18px;background:linear-gradient(#fff,#fff) padding-box, conic-gradient(from 0turn,
-        var(--confetti1),var(--confetti2),var(--confetti3),var(--confetti4),var(--confetti1)) border-box;
-      border:6px solid transparent;
-      animation:borderSpin 10s linear infinite;
+      position:relative;padding:22px;border-radius:18px;background:
+        linear-gradient(#fff,#fff) padding-box,
+        conic-gradient(from 0turn, var(--confetti1),var(--confetti2),var(--confetti3),var(--confetti4),var(--confetti1)) border-box;
+      border:6px solid transparent; animation:borderSpin 10s linear infinite;
     }
     @keyframes borderSpin{to{filter:hue-rotate(360deg)}}
 
+    /* всплывающий эмодзи при правильном ответе */
     .celebrate{position:fixed;inset:0;display:grid;place-items:center;
       pointer-events:none;font-size:64px;opacity:0;transform:scale(.9);transition:.35s ease}
     .celebrate.show{opacity:1;transform:scale(1);animation:pop .9s ease forwards}
     @keyframes pop{0%{transform:scale(.9) rotate(-6deg)}50%{transform:scale(1.08) rotate(6deg)}100%{transform:scale(1) rotate(0);opacity:0}}
+
+    /* приветственная анимация — сердечко */
+    .flyby{
+      position:fixed;top:18px;left:-15vw;font-size:36px;z-index:9999;
+      pointer-events:none;opacity:0;
+    }
+    @keyframes heart{
+      0%   { transform: translateX(0)   scale(.8) rotate(-10deg); opacity:0; }
+      15%  { opacity:1; }
+      50%  { transform: translateX(60vw) scale(1.2) rotate(10deg); }
+      85%  { opacity:1; }
+      100% { transform: translateX(120vw) scale(1) rotate(0deg); opacity:0; }
+    }
+
+    /* плавное появление карточек при первом визите */
+    .reveal-once{opacity:0;transform:translateY(12px);animation:reveal 700ms ease-out forwards}
+    @keyframes reveal{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+    /* уважение к prefers-reduced-motion */
+    @media (prefers-reduced-motion: reduce){
+      .reveal-once{animation:none;opacity:1;transform:none}
+      .flyby{display:none}
+    }
 
     /* мобильные правки типографики/отступов */
     @media (max-width:520px){
@@ -102,9 +124,12 @@
     <header class="card intro">
       <h1>Дорогие Паша и Варя! 💍✈️</h1>
       <p>Прежде чем получить наш подарок, вы должны доказать, что вы идеальная команда и готовы к приключениям!
-        Ответьте на 5 вопросов о вашей любви. Вводите ответы прямо под вопросами — поле загорается
+        Ответьте на 5 вопросов о вашей любви (и не только). Вводите ответы прямо под вопросами — поле загорается
         <b style="color:var(--ok)">зелёным</b>, если всё верно, и <b style="color:var(--bad)">красным</b> — если нет.</p>
     </header>
+
+    <!-- сердечко для приветственной анимации -->
+    <div id="welcomeAnim" class="flyby" aria-hidden="true">❤️</div>
 
     <section id="quiz" class="card">
       <div id="questions"></div>
@@ -193,7 +218,7 @@
           input.classList.remove("correct");
           if (input.value.trim().length > 0){ input.classList.add("incorrect"); }
           else { input.classList.remove("incorrect"); }
-          }
+        }
       }
       updateProgress();
     }
@@ -238,6 +263,33 @@
       void celebrate.offsetWidth;
       celebrate.classList.add("show");
     }
+
+    // ---- Приветственная анимация только при первом визите ----
+    const FIRST_VISIT_KEY = "wedding-quest-first-visit";
+    function runFirstVisitAnimation(){
+      // плавное проявление карточек
+      document.querySelectorAll('.card').forEach((el, i) => {
+        el.classList.add('reveal-once');
+        el.style.animationDelay = (i * 120) + "ms";
+      });
+      // пролет сердечка
+      const heart = document.getElementById('welcomeAnim');
+      if (heart){
+        heart.style.opacity = "1";
+        heart.style.animation = "heart 6s ease-in-out 300ms 1 both";
+      }
+    }
+    (function(){
+      try{
+        const already = localStorage.getItem(FIRST_VISIT_KEY) === "1";
+        if (!already){
+          runFirstVisitAnimation();
+          localStorage.setItem(FIRST_VISIT_KEY, "1");
+        }
+      }catch(e){
+        runFirstVisitAnimation();
+      }
+    })();
 
     render();
   </script>
