@@ -44,13 +44,7 @@
 
     .q{padding:18px 0;border-top:1px dashed var(--border)}
     .q:first-child{border-top:0}
-    .q h3{
-      margin:0 0 10px;
-      font-size:18px;
-      line-height:1.35;
-      font-weight:650;
-    white-space: pre-line;
-    }
+    .q h3{margin:0 0 10px;font-size:18px;line-height:1.35;font-weight:650;white-space:pre-line;}
     .label{font-size:13px;color:var(--muted);margin:0 0 6px}
 
     input.answer{
@@ -90,8 +84,7 @@
     @keyframes fadeIn{to{opacity:1}}
 
     .celebrate{position:fixed;inset:0;display:grid;place-items:center;pointer-events:none;font-size:64px;opacity:0;transform:scale(.9);transition:.35s ease}
-    .celebrate.
-    show{opacity:1;transform:scale(1);animation:pop .9s ease forwards}
+    .celebrate.show{opacity:1;transform:scale(1);animation:pop .9s ease forwards}
     @keyframes pop{0%{transform:scale(.9) rotate(-6deg)}50%{transform:scale(1.08) rotate(6deg)}100%{transform:scale(1) rotate(0);opacity:0}}
 
     .flyby{position:fixed;top:18px;left:-15vw;font-size:36px;z-index:9999;pointer-events:none;opacity:0}
@@ -102,6 +95,40 @@
     .reveal-once{opacity:0;transform:translateY(12px);animation:reveal 700ms ease-out forwards}
     @keyframes reveal{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
     @media(prefers-reduced-motion:reduce){.reveal-once{animation:none;opacity:1;transform:none}.flyby{display:none}}
+
+    /* === Мобильные оверрайды, чтобы фон был виднее === */
+    @media (max-width: 540px){
+      .card{
+        background: rgba(255,255,255,0.78);
+        backdrop-filter: saturate(140%) blur(8px);
+        -webkit-backdrop-filter: saturate(140%) blur(8px);
+        padding: 16px;
+        border-radius: 16px;
+      }
+      .prize{
+        max-width: 92%;
+        margin: 0 auto;
+        padding: 16px;
+        border-width: 4px;
+        background:
+          linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)) padding-box,
+          conic-gradient(from 0turn,var(--confetti1),var(--confetti2),var(--confetti3),var(--confetti4),var(--confetti1)) border-box;
+        backdrop-filter: saturate(140%) blur(6px);
+        -webkit-backdrop-filter: saturate(140%) blur(6px);
+      }
+      .intro{ margin-bottom: 12px; }
+      h1{ font-size: 22px; }
+      .q h3{ font-size: 16px; }
+      .hint{ font-size: 12px; }
+      input.answer{ padding: 14px; font-size: 16px; }
+      .progress{
+        background: rgba(255,255,255,0.72);
+        backdrop-filter: saturate(140%) blur(6px);
+        -webkit-backdrop-filter: saturate(140%) blur(6px);
+        padding: 10px 12px;
+      }
+      .container{ max-width: 640px; padding: 0 12px; }
+    }
   </style>
 </head>
 <body>
@@ -111,7 +138,7 @@
     <header class="card intro">
       <h1>Дорогие Паша и Варя! 💍</h1>
       <p>Прежде чем получить наш подарок, вы должны доказать, что вы идеальная команда и готовы к приключениям!
-        Ответьте на пару вопросов о вашей любви (и не только). Вводите ответы прямо под вопросами — поле загорается
+        Ответьте на пару вопросов о вашей любви. Вводите ответы прямо под вопросами — поле загорается
         <b style="color:var(--ok)">зелёным</b>, если всё верно, и <b style="color:var(--bad)">красным</b> — если нет.</p>
     </header>
 
