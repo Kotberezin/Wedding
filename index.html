@@ -156,11 +156,14 @@
       const input=e.target, idx=+input.dataset.index, q=QUESTIONS[idx];
       if(isCorrect(input.value,q.answers)){
         if(!solved[idx]){solved[idx]=true;correctCount++}
-        input.classList.add("correct");input.disabled=true;popCelebrate();
+        input.classList.remove("incorrect");   // убираем красный
+        input.classList.add("correct");        // ставим зелёный
+        input.disabled=true;
+        popCelebrate();
       }else{
         if(!solved[idx]){
           input.classList.remove("correct");
-          input.classList.toggle("incorrect",input.value.trim()!=="");
+          input.classList.toggle("incorrect", input.value.trim()!=="");
         }
       }
       updateProgress();
