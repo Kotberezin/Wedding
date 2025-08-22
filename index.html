@@ -4,13 +4,13 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Паша & Варя — Квест-подарок</title>
-  <meta name="description" content="Свадебный квест-подарок" />
   <style>
     :root{
       --bg:#f6f8fb;--text:#17212b;--muted:#5c6b7a;
       --ok:#20a56a;--bad:#e04646;--focus:#8fb3ff;--link:#2e6df6;
       --confetti1:#ffd166;--confetti2:#ef476f;--confetti3:#06d6a0;--confetti4:#118ab2;
-      --intro-top-gap: 48px; --qa-gap: 32px;
+      --intro-top-gap: 48px;
+      --qa-gap: 64px; /* увеличено */
     }
 
     *{box-sizing:border-box}
@@ -20,7 +20,6 @@
          opacity:0;transition:opacity 3.6s ease;}
     body.loaded{opacity:1}
 
-    /* фон */
     #photoBackground{position:fixed;inset:0;overflow:hidden;z-index:-1;background:var(--bg)}
     .photo-fall{position:absolute;top:-200px;border-radius:50%;object-fit:cover;
       box-shadow:0 6px 16px rgba(0,0,0,.18);opacity:.9;animation:fall linear infinite;}
@@ -33,20 +32,26 @@
       backdrop-filter:saturate(140%) blur(12px);
       -webkit-backdrop-filter:saturate(140%) blur(12px);
       box-shadow:0 10px 30px rgba(20,40,90,.08);}
-
     .intro{margin-top:var(--intro-top-gap);margin-bottom:var(--qa-gap);}
     h1{margin:0 0 8px;font-size:28px;line-height:1.2}
     h2{margin:0 0 14px;font-size:24px;line-height:1.2;color:var(--ok)}
-    p{margin:.6em 0 0}
     .muted{color:var(--muted);text-align:center;margin-top:14px}
 
-    /* каждый вопрос — отдельная карточка */
     #questions{display:flex;flex-direction:column;gap:var(--qa-gap);}
     .q{background:rgba(255,255,255,.58);border:1px solid rgba(255,255,255,.6);
        border-radius:18px;padding:20px;
        backdrop-filter:saturate(140%) blur(12px);
        -webkit-backdrop-filter:saturate(140%) blur(12px);
-       box-shadow:0 6px 16px rgba(20,40,90,.08);}
+       box-shadow:0 6px 16px rgba(20,40,90,.08);
+       opacity:0;transform:translateY(20px) scale(0.96);animation:slideUp .8s ease forwards;}
+    .q:nth-child(1){animation-delay:.2s}
+    .q:nth-child(2){animation-delay:.4s}
+    .q:nth-child(3){animation-delay:.6s}
+    .q:nth-child(4){animation-delay:.8s}
+    .q:nth-child(5){animation-delay:1s}
+
+    @keyframes slideUp{to{opacity:1;transform:translateY(0) scale(1);}}
+
     .q h3{margin:0 0 10px;font-size:18px;line-height:1.35;font-weight:650;white-space:pre-line}
     .label{font-size:13px;color:var(--muted);margin:0 0 6px}
 
@@ -65,32 +70,21 @@
       color:var(--link);background:rgba(242,246,255,.88);transition:.15s;text-align:center;
       backdrop-filter:blur(2px);}
     .cta:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(20,40,90,.08)}
-    @media(max-width:640px){.cta{display:block;width:100%}}
 
     .prize{position:relative;padding:22px;border-radius:18px;
       background:linear-gradient(rgba(255,255,255,.86),rgba(255,255,255,.86)) padding-box,
       conic-gradient(from 0turn,var(--confetti1),var(--confetti2),var(--confetti3),var(--confetti4),var(--confetti1)) border-box;
       border:6px solid transparent;animation:borderSpin 10s linear infinite;
-      backdrop-filter:saturate(140%) blur(10px);}
+      backdrop-filter:saturate(140%) blur(10px);
+      opacity:0;transform:scale(0.9);animation:zoomInFade 1s ease forwards;}
     @keyframes borderSpin{to{filter:hue-rotate(360deg)}}
-
-    .fade-out{opacity:0;transition:opacity 1.2s ease}
-    .fade-in{opacity:0;animation:fadeIn 1.2s forwards}
-    @keyframes fadeIn{to{opacity:1}}
+    @keyframes zoomInFade{to{opacity:1;transform:scale(1);}}
 
     .celebrate{position:fixed;inset:0;display:grid;place-items:center;pointer-events:none;font-size:64px;opacity:0}
     .celebrate.show{opacity:1;animation:pop .9s ease forwards}
     @keyframes pop{0%{transform:scale(.9) rotate(-6deg)}
       50%{transform:scale(1.08) rotate(6deg)}
       100%{transform:scale(1) rotate(0);opacity:0}}
-
-    .flyby{position:fixed;top:18px;left:-15vw;font-size:36px;opacity:0}
-    @keyframes heart{0%{transform:translateX(0) scale(.8) rotate(-10deg);opacity:0}
-      15%{opacity:1}50%{transform:translateX(60vw) scale(1.2) rotate(10deg)}
-      85%{opacity:1}100%{transform:translateX(120vw) scale(1) rotate(0);opacity:0}}
-
-    .reveal-once{opacity:0;transform:translateY(12px);animation:reveal 1400ms ease-out forwards}
-    @keyframes reveal{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
   </style>
 </head>
 <body>
@@ -103,8 +97,6 @@
         Ответьте на пару вопросов о вашей любви. Вводите ответы прямо под вопросами — поле загорается
         <b style="color:var(--ok)">зелёным</b>, если всё верно, и <b style="color:var(--bad)">красным</b> — если нет.</p>
     </header>
-
-    <div id="welcomeAnim" class="flyby">❤️</div>
 
     <section id="quiz">
       <div id="questions"></div>
@@ -153,23 +145,21 @@
     }
 
     function onType(e){
-  const input=e.target, idx=+input.dataset.index, q=QUESTIONS[idx];
-  if(isCorrect(input.value,q.answers)){
-    if(!solved[idx]){ solved[idx]=true; correctCount++; }
-    // всегда чистим оба класса и ставим только зелёный
-    input.classList.remove("incorrect");
-    input.classList.add("correct");
-    setTimeout(()=>{ input.disabled = true; }, 100); // чуть позже отключаем, чтобы применился стиль
-    popCelebrate();
-  } else {
-    if(!solved[idx]){
-      input.classList.remove("correct");
-      input.classList.toggle("incorrect", input.value.trim()!=="");
+      const input=e.target, idx=+input.dataset.index, q=QUESTIONS[idx];
+      if(isCorrect(input.value,q.answers)){
+        if(!solved[idx]){solved[idx]=true;correctCount++}
+        input.classList.remove("incorrect");
+        input.classList.add("correct");
+        setTimeout(()=>{ input.disabled=true; }, 100);
+        popCelebrate();
+      }else{
+        if(!solved[idx]){
+          input.classList.remove("correct");
+          input.classList.toggle("incorrect",input.value.trim()!=="");
+        }
+      }
+      updateProgress();
     }
-  }
-  updateProgress();
-}
-
 
     function updateProgress(){
       progressEl.textContent="Верно: "+correctCount+" из "+QUESTIONS.length;
@@ -180,7 +170,7 @@
       qsRoot.classList.add("fade-out");
       setTimeout(()=>{
         qsRoot.classList.remove("fade-out");
-        qsRoot.innerHTML=`<div class="prize fade-in">
+        qsRoot.innerHTML=`<div class="prize">
           <h2>Поздравляем!</h2>
           <p>Вы успешно прошли тест на идеальную совместимость!<br><br>
           Ваш главный приз — это <b>романтическое путешествие для двоих в солнечный Сочи!</b><br><br>
@@ -195,7 +185,6 @@
     }
 
     function popCelebrate(){celebrate.classList.remove("show");void celebrate.offsetWidth;celebrate.classList.add("show")}
-
     render();
     window.addEventListener("load",()=>{document.body.classList.add("loaded")});
 
@@ -209,7 +198,8 @@
       const size=160+Math.random()*120;
       img.style.width=size+"px"; img.style.height=size+"px";
       img.style.left=Math.random()*100+"vw";
-      const dur=24+Math.random()*26; img.style.animationDuration=dur+"s";
+      const dur=24+Math.random()*26;
+      img.style.animationDuration=dur+"s";
       bg.appendChild(img);
       setTimeout(()=>img.remove(),dur*1000);
     }
