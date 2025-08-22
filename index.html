@@ -153,21 +153,23 @@
     }
 
     function onType(e){
-      const input=e.target, idx=+input.dataset.index, q=QUESTIONS[idx];
-      if(isCorrect(input.value,q.answers)){
-        if(!solved[idx]){solved[idx]=true;correctCount++}
-        input.classList.remove("incorrect");   // убираем красный
-        input.classList.add("correct");        // ставим зелёный
-        input.disabled=true;
-        popCelebrate();
-      }else{
-        if(!solved[idx]){
-          input.classList.remove("correct");
-          input.classList.toggle("incorrect", input.value.trim()!=="");
-        }
-      }
-      updateProgress();
+  const input=e.target, idx=+input.dataset.index, q=QUESTIONS[idx];
+  if(isCorrect(input.value,q.answers)){
+    if(!solved[idx]){ solved[idx]=true; correctCount++; }
+    // всегда чистим оба класса и ставим только зелёный
+    input.classList.remove("incorrect");
+    input.classList.add("correct");
+    setTimeout(()=>{ input.disabled = true; }, 100); // чуть позже отключаем, чтобы применился стиль
+    popCelebrate();
+  } else {
+    if(!solved[idx]){
+      input.classList.remove("correct");
+      input.classList.toggle("incorrect", input.value.trim()!=="");
     }
+  }
+  updateProgress();
+}
+
 
     function updateProgress(){
       progressEl.textContent="Верно: "+correctCount+" из "+QUESTIONS.length;
